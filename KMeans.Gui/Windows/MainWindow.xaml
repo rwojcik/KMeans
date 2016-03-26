@@ -1,0 +1,28 @@
+﻿<Window x:Class="KMeans.Gui.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="MainWindow" MinHeight="200" MinWidth="300">
+  <DockPanel LastChildFill="True">
+    <Menu DockPanel.Dock="Top" IsMainMenu="True">
+      <MenuItem Header="File">
+        <MenuItem Header="Load"/>
+        <MenuItem Header="Save"/>
+        <Separator/>
+        <MenuItem Header="Exit" Click="ExitMenuItemClick"/>
+      </MenuItem>
+    </Menu>
+    <StatusBar Name="StatusBar" DockPanel.Dock="Bottom">
+      <StatusBarItem>
+        <TextBlock Name="CursorPosition" Text="{Binding MousePosition}"/>
+      </StatusBarItem>
+      <Separator/>
+      <StatusBarItem>
+        <TextBlock Name="StatusInfo" Text="{Binding StatusText}" />
+      </StatusBarItem>
+    </StatusBar>
+    <Canvas Name="DrawingCanvas"  DockPanel.Dock="Bottom" MouseEnter="DrawingCanvasOnMouseEnter" MouseLeave="DrawingCanvasOnMouseLeave" MouseMove="DrawingCanvasOnMouseMove" Background="Gray"/>
+  </DockPanel>
+</Window>
