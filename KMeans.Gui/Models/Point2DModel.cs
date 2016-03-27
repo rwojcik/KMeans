@@ -23,7 +23,8 @@ namespace KMeans.Gui.Models
 
     }
 
-    public string Text => $"{nameof(X)}: {X:0000,0} {nameof(Y)}: {Y:0000,0}";
+    public string Text => $"{nameof(X)}: {X:0000} {nameof(Y)}: {Y:0000}";
+
     public override string ToString() => Text;
   }
 }

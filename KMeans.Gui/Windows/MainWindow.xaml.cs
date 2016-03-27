@@ -11,6 +11,8 @@ namespace KMeans.Gui.Windows
   {
     public StatusViewModel StatusViewModel { get; set; }
 
+    public CursorPositionViewModel CursorPositionViewModel { get; set; }  
+
     public MainWindow()
     {
       InitializeFields();
@@ -20,12 +22,14 @@ namespace KMeans.Gui.Windows
 
     private void InitializeBinding()
     {
-      StatusBar.DataContext = StatusViewModel;
+      StatusInfo.DataContext = StatusViewModel;
+      CursorPosition.DataContext = CursorPositionViewModel;
     }
 
     private void InitializeFields()
     {
       StatusViewModel = new StatusViewModel();
+      CursorPositionViewModel = new CursorPositionViewModel();
     }
 
     private void ExitMenuItemClick(object sender, RoutedEventArgs e)
@@ -37,17 +41,31 @@ namespace KMeans.Gui.Windows
     {
       if (!(sender is IInputElement)) return;
 
-      StatusViewModel.CursorPositionViewModel.Position.Point = Mouse.GetPosition((IInputElement)sender);
+      CursorPositionViewModel.Position.Point = Mouse.GetPosition((IInputElement)sender);
     }
 
     private void DrawingCanvasOnMouseEnter(object sender, MouseEventArgs e)
     {
       StatusViewModel.StatusText = "Mouse enter...";
+      CursorPositionViewModel.CursorInsideCanvas = true;
     }
 
     private void DrawingCanvasOnMouseLeave(object sender, MouseEventArgs e)
     {
       StatusViewModel.StatusText = "Mouse leave...";
+      CursorPositionViewModel.CursorInsideCanvas = false;
+    }
+
+    private void DrawingCanvasOnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+      
+
+    }
+
+    private void DrawingCanvasOnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+      
+
     }
   }
 }

@@ -8,7 +8,7 @@ namespace KMeans.Calc.Models
   {
     public double[] Values { get; }
 
-    public Cluster(double[] values)
+    public Cluster(params double[] values)
     {
       Values = values;
     }

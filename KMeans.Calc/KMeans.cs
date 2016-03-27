@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using KMeans.Calc.Models;
-using PostSharp.Patterns.Model;
+using PostSharp.Patterns.Diagnostics;
+using PostSharp.Extensibility;
 
 namespace KMeans.Calc
 {
@@ -38,12 +39,12 @@ namespace KMeans.Calc
           .ToList();
     }
 
-    private static double CalcDistance(Point point, Cluster cluster)
+    public static double CalcDistance(Point point, Cluster cluster)
     {
-      return point.Values.Zip(cluster.Values, (p, c) => Math.Pow(p - c, 2)).Sum();
+      return Math.Sqrt(point.Values.Zip(cluster.Values, (p, c) => Math.Pow(p - c, 2)).Sum());
     }
 
-    private static void FindNewCluster(Point point, List<Cluster> clusters)
+    public static void FindNewCluster(Point point, List<Cluster> clusters)
     {
       var distances = clusters.ToDictionary(cluster => CalcDistance(point, cluster));
 
@@ -53,11 +54,16 @@ namespace KMeans.Calc
       point.Cluster = newCluster;
     }
 
-    private static void MoveCluster(Cluster cluster, List<Point> points, int numDimensions)
+    public static void MoveCluster(Cluster cluster, List<Point> points)
+    {
+      MoveCluster(cluster, points, cluster.Values.Length);
+    }
+
+    public static void MoveCluster(Cluster cluster, List<Point> points, int numDimensions)
     {
       var clusterPoints = points.Where(point => point.Cluster == cluster).ToList();
 
-      if(!clusterPoints.Any())
+      if (!clusterPoints.Any())
         return;
 
       for (int dimension = 0; dimension < numDimensions; dimension++)
@@ -66,19 +72,33 @@ namespace KMeans.Calc
       }
     }
 
-    public async Task<bool> FindClusters(CancellationToken cancellationToken)
+    public Task<bool> FindClusters(int maxIterations = 100)
     {
-      await Task.Factory.StartNew(() => Parallel.ForEach(Points, point =>
-      {
-        FindNewCluster(point, Clusters);
-      }), cancellationToken);
+      return FindClusters(CancellationToken.None, maxIterations);
+    }
+    
+    public async Task<bool> FindClusters(CancellationToken cancellationToken, int maxIterations = 100)
+    {
+      int counter = 0;
 
-      await Task.Factory.StartNew(() => Parallel.ForEach(Clusters, cluster =>
+      while (counter++ < maxIterations || !FindClustersFinished())
       {
-        MoveCluster(cluster, Points, NumDimenstions);
-      }), cancellationToken);
+        await FindClustersStep(cancellationToken);
+      }
 
       return FindClustersFinished();
+    }
+
+    private async Task FindClustersStep(CancellationToken cancellationToken)
+    {
+      await
+        Task.Factory.StartNew(() => Parallel.ForEach(Points, point => { FindNewCluster(point, Clusters); }),
+          cancellationToken);
+
+      await
+        Task.Factory.StartNew(
+          () => Parallel.ForEach(Clusters, cluster => { MoveCluster(cluster, Points, NumDimenstions); }),
+          cancellationToken);
     }
 
     public bool FindClustersFinished()

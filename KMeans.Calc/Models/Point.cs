@@ -12,7 +12,7 @@ namespace KMeans.Calc.Models
 
     public Cluster PreviousCluster { get; set; } = null;
 
-    public Point(double[] values)
+    public Point(params double[] values)
     {
       Values = values;
     }

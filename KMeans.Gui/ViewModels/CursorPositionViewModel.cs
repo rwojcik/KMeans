@@ -9,6 +9,8 @@ namespace KMeans.Gui.ViewModels
 
     public Point2DModel Position { get; set; } = new Point2DModel();
 
+    public bool CursorInsideCanvas { get; set; }
+
     public string PositionText => Position.Text;
   }
 }
