@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Windows;
 using PostSharp.Patterns.Model;
 
 namespace KMeans.Gui.ViewModels
@@ -9,7 +8,6 @@ namespace KMeans.Gui.ViewModels
   {
     public Stack<int> RandomPointNum { get; set; }
     public Stack<int> RandomClusterNum { get; set; }
-    public Stack<int> AlgorithmMaxStepNum { get; set; } 
-
+    public Stack<int> AlgorithmMaxStepNum { get; set; }
   }
 }

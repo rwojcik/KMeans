@@ -11,23 +11,18 @@ using System.Windows.Shapes;
 using KMeans.Calc.Models;
 using KMeans.Gui.ViewModels;
 using Newtonsoft.Json;
+using Path = System.IO.Path;
 using Point = KMeans.Calc.Models.Point;
 
 namespace KMeans.Gui.Windows
 {
   /// <summary>
-  /// Interaction logic for MainWindow.xaml
+  ///   Interaction logic for MainWindow.xaml
   /// </summary>
   public partial class MainWindow
   {
-    private static readonly string SaveFilePath = $"{Directory.GetCurrentDirectory()}{System.IO.Path.DirectorySeparatorChar}settings.json";
-    public StatusViewModel StatusViewModel { get; set; }
-
-    public CursorPositionViewModel CursorPositionViewModel { get; set; }
-
-    public Calc.KMeans KMeans { get; set; }
-
-    public SaveViewModel SaveViewModel { get; set; }
+    private static readonly string SaveFilePath =
+      $"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}settings.json";
 
     public MainWindow()
     {
@@ -37,6 +32,14 @@ namespace KMeans.Gui.Windows
       InitializeBinding();
       FlushMenuRecents();
     }
+
+    public StatusViewModel StatusViewModel { get; set; }
+
+    public CursorPositionViewModel CursorPositionViewModel { get; set; }
+
+    public Calc.KMeans KMeans { get; set; }
+
+    public SaveViewModel SaveViewModel { get; set; }
 
     private void LoadSaves()
     {
@@ -82,8 +85,7 @@ namespace KMeans.Gui.Windows
 
       AddRandomPointsMenu.Items.Add(new MenuItem
       {
-        Header = "_Enter custom number...",
-
+        Header = "_Enter custom number..."
       });
       if (SaveViewModel.RandomPointNum.Any())
       {
@@ -93,13 +95,10 @@ namespace KMeans.Gui.Windows
         {
           var addRandomPointMenu = new MenuItem
           {
-            Header = $"_{point}",
+            Header = $"_{point}"
           };
 
-          addRandomPointMenu.Click += (sender, args) =>
-          {
-            AddRandomPoints(point);
-          };
+          addRandomPointMenu.Click += (sender, args) => { AddRandomPoints(point); };
 
           AddRandomPointsMenu.Items.Add(addRandomPointMenu);
         }
@@ -107,7 +106,7 @@ namespace KMeans.Gui.Windows
 
       AddRandomClustersMenu.Items.Add(new MenuItem
       {
-        Header = "_Enter custom number...",
+        Header = "_Enter custom number..."
       });
 
       if (SaveViewModel.RandomClusterNum.Any())
@@ -118,13 +117,10 @@ namespace KMeans.Gui.Windows
         {
           var randomClusterMenu = new MenuItem
           {
-            Header = $"_{cluster}",
+            Header = $"_{cluster}"
           };
 
-          randomClusterMenu.Click += (sender, args) =>
-          {
-            AddRandomClusters(cluster);
-          };
+          randomClusterMenu.Click += (sender, args) => { AddRandomClusters(cluster); };
 
           AddRandomClustersMenu.Items.Add(randomClusterMenu);
         }
@@ -132,7 +128,7 @@ namespace KMeans.Gui.Windows
 
       RunAlgorithmMenu.Items.Add(new MenuItem
       {
-        Header = "_Enter custom number...",
+        Header = "_Enter custom number..."
       });
 
       if (SaveViewModel.AlgorithmMaxStepNum.Any())
@@ -143,13 +139,10 @@ namespace KMeans.Gui.Windows
         {
           var runAlgorithmMenu = new MenuItem
           {
-            Header = $"_{steps}",
+            Header = $"_{steps}"
           };
 
-          runAlgorithmMenu.Click += (sender, args) =>
-          {
-            Task.Factory.StartNew(() => RunAlgorithm(steps));
-          };
+          runAlgorithmMenu.Click += (sender, args) => { Task.Factory.StartNew(() => RunAlgorithm(steps)); };
 
           RunAlgorithmMenu.Items.Add(runAlgorithmMenu);
         }
@@ -161,14 +154,15 @@ namespace KMeans.Gui.Windows
       StatusViewModel = new StatusViewModel();
       CursorPositionViewModel = new CursorPositionViewModel();
       KMeans = new Calc.KMeans();
-
     }
 
     private void AddRandomPoints(int numPoints)
     {
       var r = new Random();
 
-      var randomPoints = Enumerable.Range(0, numPoints).Select(i => new Point(r.NextDouble() * DrawingCanvas.ActualWidth, r.NextDouble() * DrawingCanvas.ActualHeight));
+      var randomPoints =
+        Enumerable.Range(0, numPoints)
+          .Select(i => new Point(r.NextDouble()*DrawingCanvas.ActualWidth, r.NextDouble()*DrawingCanvas.ActualHeight));
 
       KMeans.Points.AddRange(randomPoints);
       EnsureDrawingCanvasChildren();
@@ -178,7 +172,9 @@ namespace KMeans.Gui.Windows
     {
       var r = new Random();
 
-      var randomClusters = Enumerable.Range(0, numClusters).Select(i => new Cluster(r.NextDouble() * DrawingCanvas.ActualWidth, r.NextDouble() * DrawingCanvas.ActualHeight));
+      var randomClusters =
+        Enumerable.Range(0, numClusters)
+          .Select(i => new Cluster(r.NextDouble()*DrawingCanvas.ActualWidth, r.NextDouble()*DrawingCanvas.ActualHeight));
 
       KMeans.Clusters.AddRange(randomClusters);
       EnsureDrawingCanvasChildren();
@@ -206,7 +202,7 @@ namespace KMeans.Gui.Windows
     {
       if (!(sender is IInputElement)) return;
 
-      CursorPositionViewModel.Position.Point = Mouse.GetPosition((IInputElement)sender);
+      CursorPositionViewModel.Position.Point = Mouse.GetPosition((IInputElement) sender);
     }
 
     private void DrawingCanvasOnMouseEnter(object sender, MouseEventArgs e)
@@ -223,13 +219,10 @@ namespace KMeans.Gui.Windows
 
     private void DrawingCanvasOnMouseDown(object sender, MouseButtonEventArgs e)
     {
-
-
     }
 
     private void DrawingCanvasOnMouseUp(object sender, MouseButtonEventArgs e)
     {
-
       EnsureDrawingCanvasChildren();
     }
 
@@ -244,7 +237,7 @@ namespace KMeans.Gui.Windows
         {
           Height = 5d,
           Width = 5d,
-          Fill = new SolidColorBrush(Colors.Black),
+          Fill = new SolidColorBrush(Colors.Black)
         };
 
         Canvas.SetLeft(circle, point.Values[0] - 2);
@@ -261,7 +254,7 @@ namespace KMeans.Gui.Windows
             X1 = point.Values[0],
             Y1 = point.Values[1],
             X2 = point.Cluster.Values[0],
-            Y2 = point.Cluster.Values[1],
+            Y2 = point.Cluster.Values[1]
           };
 
           DrawingCanvas.Children.Add(line);
@@ -277,7 +270,7 @@ namespace KMeans.Gui.Windows
           AllowDrop = true,
           Stroke = new SolidColorBrush(Colors.Black),
           StrokeThickness = 2d,
-          Fill = new SolidColorBrush(Colors.Gray),
+          Fill = new SolidColorBrush(Colors.Gray)
         };
 
         Canvas.SetLeft(rectangle, cluster.Values[0] - 4);
@@ -298,11 +291,10 @@ namespace KMeans.Gui.Windows
           var jsonSerializer = new JsonSerializer
           {
             NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.Indented,
+            Formatting = Formatting.Indented
           };
           jsonSerializer.Serialize(jsonTextWriter, SaveViewModel);
         }
-
       }
       catch (Exception)
       {

@@ -11,16 +11,12 @@ namespace KMeans.Gui.Models
 
     public Point Point
     {
-      get
-      {
-        return new Point(X, Y);
-      }
+      get { return new Point(X, Y); }
       set
       {
         X = value.X;
         Y = value.Y;
       }
-
     }
 
     public string Text => $"{nameof(X)}: {X:0000} {nameof(Y)}: {Y:0000}";

@@ -9,11 +9,6 @@ namespace KMeans.Calc
 {
   public class KMeans
   {
-    public List<Point> Points { get; }
-    public List<Cluster> Clusters { get; }
-
-    public int NumDimenstions { get; }
-
     public KMeans(List<Point> points, List<Cluster> clusters, int numDimensions)
     {
       Points = points;
@@ -28,12 +23,12 @@ namespace KMeans.Calc
 
       Points =
         Enumerable.Range(0, numPoints)
-          .Select(i => new Point(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
+          .Select(i => new Point(dimBounds.Select(bound => r.NextDouble()*bound).ToArray()))
           .ToList();
 
       Clusters =
         Enumerable.Range(0, numClusters)
-          .Select(i => new Cluster(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
+          .Select(i => new Cluster(dimBounds.Select(bound => r.NextDouble()*bound).ToArray()))
           .ToList();
     }
 
@@ -43,6 +38,11 @@ namespace KMeans.Calc
       Clusters = new List<Cluster>();
       NumDimenstions = numDimensions;
     }
+
+    public List<Point> Points { get; }
+    public List<Cluster> Clusters { get; }
+
+    public int NumDimenstions { get; }
 
     public static double CalcDistance(Point point, Cluster cluster)
     {
@@ -83,7 +83,7 @@ namespace KMeans.Calc
       if (!clusterPoints.Any())
         return;
 
-      for (int dimension = 0; dimension < numDimensions; dimension++)
+      for (var dimension = 0; dimension < numDimensions; dimension++)
       {
         cluster.Values[dimension] = points.Average(point => point.Values[dimension]);
       }
@@ -96,7 +96,7 @@ namespace KMeans.Calc
 
     public async Task<bool> FindClusters(CancellationToken cancellationToken, int maxIterations = 100)
     {
-      int counter = 0;
+      var counter = 0;
 
       while (counter++ < maxIterations || !await FindClustersStep(cancellationToken))
       {

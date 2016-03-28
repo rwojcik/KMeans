@@ -8,12 +8,6 @@ namespace KMeans.Calc.Models
   [NotifyPropertyChanged]
   public class Point : IComparable<Point>, IEquatable<Point>
   {
-    public double[] Values { get; }
-
-    public Cluster Cluster { get; set; } = null;
-
-    public Cluster PreviousCluster { get; set; } = null;
-
     public Point(params double[] values)
     {
       Values = values;
@@ -24,25 +18,34 @@ namespace KMeans.Calc.Models
       Values = new double[dimensions];
     }
 
+    public double[] Values { get; }
+
+    public Cluster Cluster { get; set; } = null;
+
+    public Cluster PreviousCluster { get; set; } = null;
+
     public int CompareTo(Point other)
     {
-      return (int)Values.Zip(other.Values, (thisValue, otherValue) => thisValue - otherValue).Sum();
+      return (int) Values.Zip(other.Values, (thisValue, otherValue) => thisValue - otherValue).Sum();
     }
 
     public bool Equals(Point other)
     {
       return Values.Length == other.Values.Length &&
-             Math.Abs(Values.Zip(other.Values, (thisValue, otherValue) => thisValue - otherValue).Select(diff => Math.Pow(diff, 2)).Sum()) < 0.0001d;
+             Math.Abs(
+               Values.Zip(other.Values, (thisValue, otherValue) => thisValue - otherValue)
+                 .Select(diff => Math.Pow(diff, 2))
+                 .Sum()) < 0.0001d;
     }
 
     public override bool Equals(object obj)
     {
-      return obj is Point && Equals((Point)obj);
+      return obj is Point && Equals((Point) obj);
     }
 
     public override int GetHashCode()
     {
-      return (int)Values.Aggregate((left, right) => left.GetHashCode() ^ right.GetHashCode());
+      return (int) Values.Aggregate((left, right) => left.GetHashCode() ^ right.GetHashCode());
     }
 
     public override string ToString()

@@ -59,7 +59,7 @@ namespace KMeans.Tests
         new Point(-1d),
         new Point(0d),
         new Point(1d),
-        new Point(10d),
+        new Point(10d)
       };
 
       foreach (var point in points)
@@ -87,7 +87,7 @@ namespace KMeans.Tests
         new Point(-1d, -10d),
         new Point(0d, 0d),
         new Point(1d, 1d),
-        new Point(100d, 100d),
+        new Point(100d, 100d)
       };
 
       foreach (var point in points)
@@ -109,7 +109,7 @@ namespace KMeans.Tests
       var points = new List<Point>
       {
         new Point(5d),
-        new Point(6d),
+        new Point(6d)
       };
 
       foreach (var point in points)
@@ -130,7 +130,7 @@ namespace KMeans.Tests
       var points = new List<Point>
       {
         new Point(5d, 5d),
-        new Point(6d, 6d),
+        new Point(6d, 6d)
       };
 
       foreach (var point in points)

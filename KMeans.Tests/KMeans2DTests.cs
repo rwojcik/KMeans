@@ -20,13 +20,13 @@ namespace KMeans.Tests
     {
       _kMeans.Clusters.AddRange(new List<Cluster>
       {
-        new Cluster(0,0)
+        new Cluster(0, 0)
       });
 
       _kMeans.Points.AddRange(new List<Point>
       {
-        new Point(0,0),
-        new Point(1,1)
+        new Point(0, 0),
+        new Point(1, 1)
       });
 
       Assert.IsFalse(_kMeans.FindClustersFinished());
@@ -35,23 +35,21 @@ namespace KMeans.Tests
     [TestMethod]
     public void TestFinished_2()
     {
-
       _kMeans.Clusters.AddRange(new List<Cluster>
       {
-        new Cluster(0,0)
+        new Cluster(0, 0)
       });
 
       _kMeans.Points.AddRange(new List<Point>
       {
-        new Point(0,0),
-        new Point(1,1)
+        new Point(0, 0),
+        new Point(1, 1)
       });
 
-      bool finished = _kMeans.FindClusters().Result;
+      var finished = _kMeans.FindClusters().Result;
 
       Assert.IsTrue(finished);
     }
-
 
 
     [TestMethod]
@@ -59,15 +57,15 @@ namespace KMeans.Tests
     {
       var clusters = new List<Cluster>
       {
-        new Cluster(-1,0),
+        new Cluster(-1, 0),
         new Cluster(10, 0)
       };
       _kMeans.Clusters.AddRange(clusters);
 
       var points = new List<Point>
       {
-        new Point(0,-1),
-        new Point(0,1)
+        new Point(0, -1),
+        new Point(0, 1)
       };
       _kMeans.Points.AddRange(points);
 
@@ -81,7 +79,7 @@ namespace KMeans.Tests
 
       var finished = _kMeans.FindClusters().Result;
 
-      Assert.AreEqual(new Cluster(0,0), clusters[0]);
+      Assert.AreEqual(new Cluster(0, 0), clusters[0]);
       Assert.AreEqual(new Cluster(10, 0), clusters[1]);
     }
   }
