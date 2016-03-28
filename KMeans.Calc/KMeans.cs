@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using KMeans.Calc.Models;
-using PostSharp.Patterns.Diagnostics;
-using PostSharp.Extensibility;
 
 namespace KMeans.Calc
 {
@@ -30,13 +28,20 @@ namespace KMeans.Calc
 
       Points =
         Enumerable.Range(0, numPoints)
-          .Select(i => new Point(dimBounds.Select(bound => r.NextDouble()*bound).ToArray()))
+          .Select(i => new Point(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
           .ToList();
 
       Clusters =
         Enumerable.Range(0, numClusters)
-          .Select(i => new Cluster(dimBounds.Select(bound => r.NextDouble()*bound).ToArray()))
+          .Select(i => new Cluster(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
           .ToList();
+    }
+
+    public KMeans(int numDimensions = 2)
+    {
+      Points = new List<Point>();
+      Clusters = new List<Cluster>();
+      NumDimenstions = numDimensions;
     }
 
     public static double CalcDistance(Point point, Cluster cluster)
@@ -46,7 +51,19 @@ namespace KMeans.Calc
 
     public static void FindNewCluster(Point point, List<Cluster> clusters)
     {
-      var distances = clusters.ToDictionary(cluster => CalcDistance(point, cluster));
+      //var distances = clusters.ToDictionary(cluster => CalcDistance(point, cluster));
+
+      var distances = new Dictionary<double, Cluster>(clusters.Count);
+
+      foreach (var cluster in clusters)
+      {
+        var distance = CalcDistance(point, cluster);
+
+        if (!distances.ContainsKey(distance))
+        {
+          distances.Add(distance, cluster);
+        }
+      }
 
       var newCluster = distances[distances.Keys.Min()];
 
@@ -72,24 +89,28 @@ namespace KMeans.Calc
       }
     }
 
-    public Task<bool> FindClusters(int maxIterations = 100)
+    public async Task<bool> FindClusters(int maxIterations = 100)
     {
-      return FindClusters(CancellationToken.None, maxIterations);
+      return await FindClusters(CancellationToken.None, maxIterations);
     }
-    
+
     public async Task<bool> FindClusters(CancellationToken cancellationToken, int maxIterations = 100)
     {
       int counter = 0;
 
-      while (counter++ < maxIterations || !FindClustersFinished())
+      while (counter++ < maxIterations || !await FindClustersStep(cancellationToken))
       {
-        await FindClustersStep(cancellationToken);
       }
 
       return FindClustersFinished();
     }
 
-    private async Task FindClustersStep(CancellationToken cancellationToken)
+    public async Task<bool> FindClustersStep()
+    {
+      return await FindClustersStep(CancellationToken.None);
+    }
+
+    public async Task<bool> FindClustersStep(CancellationToken cancellationToken)
     {
       await
         Task.Factory.StartNew(() => Parallel.ForEach(Points, point => { FindNewCluster(point, Clusters); }),
@@ -99,6 +120,8 @@ namespace KMeans.Calc
         Task.Factory.StartNew(
           () => Parallel.ForEach(Clusters, cluster => { MoveCluster(cluster, Points, NumDimenstions); }),
           cancellationToken);
+
+      return FindClustersFinished();
     }
 
     public bool FindClustersFinished()

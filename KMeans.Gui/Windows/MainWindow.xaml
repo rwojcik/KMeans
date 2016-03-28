@@ -1,29 +1,43 @@
 ﻿<Window
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ViewModels="clr-namespace:KMeans.Gui.ViewModels" x:Class="KMeans.Gui.Windows.MainWindow"
-        mc:Ignorable="d"
-        Title="MainWindow" MinHeight="200" MinWidth="300">
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  x:Class="KMeans.Gui.Windows.MainWindow"
+  mc:Ignorable="d"
+  Title="MainWindow" MinHeight="200" MinWidth="300">
   <DockPanel LastChildFill="True">
     <Menu DockPanel.Dock="Top" IsMainMenu="True">
       <MenuItem Header="File">
-        <MenuItem Header="Load"/>
-        <MenuItem Header="Save"/>
-        <Separator/>
-        <MenuItem Header="Exit" Click="ExitMenuItemClick"/>
+        <MenuItem Header="Load" />
+        <MenuItem Header="Save" />
+        <Separator />
+        <MenuItem Header="Exit" Click="ExitMenuItemClick" />
+      </MenuItem>
+      <MenuItem Header="Edit">
+        <MenuItem Header="Undo" />
+        <MenuItem Header="Redo" />
+        <Separator />
+        <MenuItem Name="AddRandomPointsMenu" Header="Add random points..." />
+        <MenuItem Name="AddRandomClustersMenu" Header="Add random clusters..." />
+      </MenuItem>
+      <MenuItem Header="KMeans">
+        <MenuItem Header="Do step" />
+        <MenuItem Name="RunAlgorithmMenu" Header="Run algorithm..." />
       </MenuItem>
     </Menu>
     <StatusBar x:Name="StatusBar" DockPanel.Dock="Bottom">
       <StatusBarItem>
-        <TextBlock x:Name="CursorPosition" Text="{Binding PositionText}"/>
+        <TextBlock x:Name="CursorPosition" Text="{Binding PositionText}" />
       </StatusBarItem>
-      <Separator/>
+      <Separator />
       <StatusBarItem DataContext="">
-        <TextBlock x:Name="StatusInfo" Text="{Binding StatusText}"/>
+        <TextBlock x:Name="StatusInfo" Text="{Binding StatusText}" />
       </StatusBarItem>
     </StatusBar>
-    <Canvas x:Name="DrawingCanvas"  DockPanel.Dock="Bottom" MouseEnter="DrawingCanvasOnMouseEnter" MouseLeave="DrawingCanvasOnMouseLeave" MouseMove="DrawingCanvasOnMouseMove" Background="WhiteSmoke" MouseDown="DrawingCanvasOnMouseDown" MouseUp="DrawingCanvasOnMouseUp"/>
+    <Canvas x:Name="DrawingCanvas" DockPanel.Dock="Bottom" MouseEnter="DrawingCanvasOnMouseEnter"
+            MouseLeave="DrawingCanvasOnMouseLeave" MouseMove="DrawingCanvasOnMouseMove" Background="WhiteSmoke"
+            MouseDown="DrawingCanvasOnMouseDown" MouseUp="DrawingCanvasOnMouseUp" />
   </DockPanel>
 </Window>
+
