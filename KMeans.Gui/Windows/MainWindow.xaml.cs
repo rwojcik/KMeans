@@ -142,7 +142,16 @@ namespace KMeans.Gui.Windows
             Header = $"_{steps}"
           };
 
-          runAlgorithmMenu.Click += (sender, args) => { Task.Factory.StartNew(() => RunAlgorithm(steps)); };
+          runAlgorithmMenu.Click += async (sender, args) =>
+          {
+
+            StatusViewModel.StatusText = $"Algorithm is running...";
+
+            bool finished =  await RunAlgorithm(steps);
+            EnsureDrawingCanvasChildren();
+
+            StatusViewModel.StatusText = $"Finished last step, algorithm has {(finished ? string.Empty : "not yet ")}finished.";
+          };
 
           RunAlgorithmMenu.Items.Add(runAlgorithmMenu);
         }
@@ -162,7 +171,7 @@ namespace KMeans.Gui.Windows
 
       var randomPoints =
         Enumerable.Range(0, numPoints)
-          .Select(i => new Point(r.NextDouble()*DrawingCanvas.ActualWidth, r.NextDouble()*DrawingCanvas.ActualHeight));
+          .Select(i => new Point(r.NextDouble() * DrawingCanvas.ActualWidth, r.NextDouble() * DrawingCanvas.ActualHeight));
 
       KMeans.Points.AddRange(randomPoints);
       EnsureDrawingCanvasChildren();
@@ -174,7 +183,7 @@ namespace KMeans.Gui.Windows
 
       var randomClusters =
         Enumerable.Range(0, numClusters)
-          .Select(i => new Cluster(r.NextDouble()*DrawingCanvas.ActualWidth, r.NextDouble()*DrawingCanvas.ActualHeight));
+          .Select(i => new Cluster(r.NextDouble() * DrawingCanvas.ActualWidth, r.NextDouble() * DrawingCanvas.ActualHeight));
 
       KMeans.Clusters.AddRange(randomClusters);
       EnsureDrawingCanvasChildren();
@@ -182,9 +191,9 @@ namespace KMeans.Gui.Windows
 
     private async Task<bool> RunAlgorithm(int maxSteps = 100)
     {
-      var ret = await KMeans.FindClusters();
-      EnsureDrawingCanvasChildren();
-      return ret;
+      var finished = await KMeans.FindClusters(maxSteps);
+
+      return finished;
     }
 
     private void InitializeBinding()
@@ -202,18 +211,18 @@ namespace KMeans.Gui.Windows
     {
       if (!(sender is IInputElement)) return;
 
-      CursorPositionViewModel.Position.Point = Mouse.GetPosition((IInputElement) sender);
+      CursorPositionViewModel.Position.Point = Mouse.GetPosition((IInputElement)sender);
     }
 
     private void DrawingCanvasOnMouseEnter(object sender, MouseEventArgs e)
     {
-      StatusViewModel.StatusText = "Mouse enter...";
+      //StatusViewModel.StatusText = "Mouse enter...";
       CursorPositionViewModel.CursorInsideCanvas = true;
     }
 
     private void DrawingCanvasOnMouseLeave(object sender, MouseEventArgs e)
     {
-      StatusViewModel.StatusText = "Mouse leave...";
+      //StatusViewModel.StatusText = "Mouse leave...";
       CursorPositionViewModel.CursorInsideCanvas = false;
     }
 
@@ -301,6 +310,23 @@ namespace KMeans.Gui.Windows
         //ignore....
       }
       base.OnClosed(e);
+    }
+
+    private async void AlgorithDoStepMenuClick(object sender, RoutedEventArgs e)
+    {
+      StatusViewModel.StatusText = "Performing one algorithm step...";
+
+      bool finished = await KMeans.FindClustersStep();
+
+      EnsureDrawingCanvasChildren();
+      StatusViewModel.StatusText = $"Done one step, algorithm has {(finished ? string.Empty : "not yet ")}finished";
+    }
+
+    private void ClearMenuItemClick(object sender, RoutedEventArgs e)
+    {
+      KMeans.Clusters.Clear();
+      KMeans.Points.Clear();
+      EnsureDrawingCanvasChildren();
     }
   }
 }

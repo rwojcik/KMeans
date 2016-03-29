@@ -23,12 +23,12 @@ namespace KMeans.Calc
 
       Points =
         Enumerable.Range(0, numPoints)
-          .Select(i => new Point(dimBounds.Select(bound => r.NextDouble()*bound).ToArray()))
+          .Select(i => new Point(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
           .ToList();
 
       Clusters =
         Enumerable.Range(0, numClusters)
-          .Select(i => new Cluster(dimBounds.Select(bound => r.NextDouble()*bound).ToArray()))
+          .Select(i => new Cluster(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
           .ToList();
     }
 
@@ -78,14 +78,14 @@ namespace KMeans.Calc
 
     public static void MoveCluster(Cluster cluster, List<Point> points, int numDimensions)
     {
-      var clusterPoints = points.Where(point => point.Cluster == cluster).ToList();
+      var clusterPoints = points.Where(point => ReferenceEquals(point.Cluster, cluster)).ToList();
 
       if (!clusterPoints.Any())
         return;
 
       for (var dimension = 0; dimension < numDimensions; dimension++)
       {
-        cluster.Values[dimension] = points.Average(point => point.Values[dimension]);
+        cluster.Values[dimension] = clusterPoints.Average(point => point.Values[dimension]);
       }
     }
 
@@ -98,11 +98,11 @@ namespace KMeans.Calc
     {
       var counter = 0;
 
-      while (counter++ < maxIterations || !await FindClustersStep(cancellationToken))
+      while (counter++ < maxIterations && !await FindClustersStep(cancellationToken))
       {
       }
 
-      return FindClustersFinished();
+      return await FindClustersFinished();
     }
 
     public async Task<bool> FindClustersStep()
@@ -112,21 +112,30 @@ namespace KMeans.Calc
 
     public async Task<bool> FindClustersStep(CancellationToken cancellationToken)
     {
+      var parallelOptions = new ParallelOptions
+      {
+        CancellationToken = cancellationToken,
+//#if DEBUG
+//        MaxDegreeOfParallelism = 1,
+//#endif
+      };
+
       await
-        Task.Factory.StartNew(() => Parallel.ForEach(Points, point => { FindNewCluster(point, Clusters); }),
+        Task.Factory.StartNew(() => Parallel.ForEach(Points, parallelOptions, point => { FindNewCluster(point, Clusters); }),
           cancellationToken);
+
 
       await
         Task.Factory.StartNew(
-          () => Parallel.ForEach(Clusters, cluster => { MoveCluster(cluster, Points, NumDimenstions); }),
+          () => Parallel.ForEach(Clusters, parallelOptions, cluster => { MoveCluster(cluster, Points, NumDimenstions); }),
           cancellationToken);
 
-      return FindClustersFinished();
+      return await FindClustersFinished();
     }
 
-    public bool FindClustersFinished()
+    public async Task<bool> FindClustersFinished()
     {
-      return Points.AsParallel().All(point => point.Cluster != null && point.Cluster == point.PreviousCluster);
+      return await Task.Factory.StartNew(()=> Points.AsParallel().All(point => point.Cluster != null && ReferenceEquals(point.Cluster, point.PreviousCluster)));
     }
   }
 }
