@@ -23,7 +23,7 @@
         <MenuItem Name="AddRandomClustersMenu" Header="Add random clusters..." />
       </MenuItem>
       <MenuItem Header="KMeans">
-        <MenuItem Header="Do step" Click="AlgorithDoStepMenuClick"/>
+        <MenuItem Header="Do step" Click="AlgorithmDoStepMenuClick"/>
         <MenuItem Name="RunAlgorithmMenu" Header="Run algorithm..." />
       </MenuItem>
     </Menu>

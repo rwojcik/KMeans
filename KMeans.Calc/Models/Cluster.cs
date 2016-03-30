@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq;
 using PostSharp.Patterns.Contracts;
-using PostSharp.Patterns.Model;
 
 namespace KMeans.Calc.Models
 {
-  [NotifyPropertyChanged]
+  //[NotifyPropertyChanged]
   public class Cluster : IComparable<Cluster>, IEquatable<Cluster>
   {
     public Cluster(params double[] values)
@@ -22,7 +21,7 @@ namespace KMeans.Calc.Models
 
     public int CompareTo(Cluster other)
     {
-      return (int) Values.Zip(other.Values, (thisValue, otherValue) => thisValue - otherValue).Sum();
+      return (int)Values.Zip(other.Values, (thisValue, otherValue) => thisValue - otherValue).Sum();
     }
 
     public bool Equals(Cluster other)
@@ -36,12 +35,12 @@ namespace KMeans.Calc.Models
 
     public override bool Equals(object obj)
     {
-      return obj is Cluster && Equals((Cluster) obj);
+      return obj is Cluster && Equals((Cluster)obj);
     }
 
     public override int GetHashCode()
     {
-      return (int) Values.Aggregate((left, right) => left.GetHashCode() ^ right.GetHashCode());
+      return (int)Values.Aggregate((left, right) => left.GetHashCode() ^ right.GetHashCode());
     }
 
     public override string ToString()

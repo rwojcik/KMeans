@@ -108,14 +108,9 @@ namespace KMeans.Tests
 
       var points = new List<Point>
       {
-        new Point(5d),
-        new Point(6d)
+        new Point(5d) {Cluster = cluser},
+        new Point(6d) {Cluster = cluser}
       };
-
-      foreach (var point in points)
-      {
-        point.Cluster = cluser;
-      }
 
       Calc.KMeans.MoveCluster(cluser, points);
 
@@ -125,23 +120,18 @@ namespace KMeans.Tests
     [TestMethod]
     public void MoveCluster_2D()
     {
-      var cluser = new Cluster(0d, 0d);
+      var cluster = new Cluster(0d, 0d);
 
       var points = new List<Point>
       {
-        new Point(5d, 5d),
-        new Point(6d, 6d)
+        new Point(5d, 5d) {Cluster = cluster},
+        new Point(6d, 6d) {Cluster = cluster}
       };
 
-      foreach (var point in points)
-      {
-        point.Cluster = cluser;
-      }
+      Calc.KMeans.MoveCluster(cluster, points);
 
-      Calc.KMeans.MoveCluster(cluser, points);
-
-      Assert.AreEqual(5.5d, cluser.Values[0]);
-      Assert.AreEqual(5.5d, cluser.Values[1]);
+      Assert.AreEqual(5.5d, cluster.Values[0]);
+      Assert.AreEqual(5.5d, cluster.Values[1]);
     }
   }
 }

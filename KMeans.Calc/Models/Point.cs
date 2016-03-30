@@ -1,28 +1,31 @@
 ﻿using System;
 using System.Linq;
 using PostSharp.Patterns.Contracts;
-using PostSharp.Patterns.Model;
 
 namespace KMeans.Calc.Models
 {
-  [NotifyPropertyChanged]
+  //[NotifyPropertyChanged]
   public class Point : IComparable<Point>, IEquatable<Point>
   {
     public Point(params double[] values)
     {
       Values = values;
+      Cluster = null;
+      PreviousCluster = null;
     }
 
     public Point([StrictlyPositive] int dimensions)
     {
       Values = new double[dimensions];
+      Cluster = null;
+      PreviousCluster = null;
     }
 
     public double[] Values { get; }
 
-    public Cluster Cluster { get; set; } = null;
+    public Cluster Cluster { get; set; }
 
-    public Cluster PreviousCluster { get; set; } = null;
+    public Cluster PreviousCluster { get; set; }
 
     public int CompareTo(Point other)
     {

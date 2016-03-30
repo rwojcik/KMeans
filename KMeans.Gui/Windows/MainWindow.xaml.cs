@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using KMeans.Calc;
 using KMeans.Calc.Models;
 using KMeans.Gui.ViewModels;
 using Newtonsoft.Json;
@@ -40,6 +44,8 @@ namespace KMeans.Gui.Windows
     public Calc.KMeans KMeans { get; set; }
 
     public SaveViewModel SaveViewModel { get; set; }
+
+    private CancellationTokenSource CancellationTokenSource { get; set; }
 
     private void LoadSaves()
     {
@@ -148,7 +154,7 @@ namespace KMeans.Gui.Windows
             StatusViewModel.StatusText = $"Algorithm is running...";
 
             bool finished =  await RunAlgorithm(steps);
-            EnsureDrawingCanvasChildren();
+            //EnsureDrawingCanvasChildren();
 
             StatusViewModel.StatusText = $"Finished last step, algorithm has {(finished ? string.Empty : "not yet ")}finished.";
           };
@@ -163,6 +169,18 @@ namespace KMeans.Gui.Windows
       StatusViewModel = new StatusViewModel();
       CursorPositionViewModel = new CursorPositionViewModel();
       KMeans = new Calc.KMeans();
+      KMeans.UpdatedData += KMeansUpdatedData;
+      KMeans.DoneStep += KMeansDoneStep;
+    }
+
+    private void KMeansDoneStep(object sender, DoneStepEventArgs doneStepEventArgs)
+    {
+      StatusViewModel.StatusText = $"Algorithm is running... {doneStepEventArgs.StepNo}/{doneStepEventArgs.StepsNum}";
+    }
+
+    private void KMeansUpdatedData(object sender, UpdatedDataEventArgs e)
+    {
+      DrawingCanvas.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(EnsureDrawingCanvasChildren));
     }
 
     private void AddRandomPoints(int numPoints)
@@ -191,7 +209,8 @@ namespace KMeans.Gui.Windows
 
     private async Task<bool> RunAlgorithm(int maxSteps = 100)
     {
-      var finished = await KMeans.FindClusters(maxSteps);
+      CancellationTokenSource = new CancellationTokenSource();
+      var finished = await KMeans.FindClusters(CancellationTokenSource.Token, maxSteps);
 
       return finished;
     }
@@ -228,6 +247,11 @@ namespace KMeans.Gui.Windows
 
     private void DrawingCanvasOnMouseDown(object sender, MouseButtonEventArgs e)
     {
+      if (e.ChangedButton == MouseButton.Right)
+      {
+        CancellationTokenSource?.Cancel();
+        CancellationTokenSource = null;
+      }
     }
 
     private void DrawingCanvasOnMouseUp(object sender, MouseButtonEventArgs e)
@@ -312,11 +336,13 @@ namespace KMeans.Gui.Windows
       base.OnClosed(e);
     }
 
-    private async void AlgorithDoStepMenuClick(object sender, RoutedEventArgs e)
+    private async void AlgorithmDoStepMenuClick(object sender, RoutedEventArgs e)
     {
       StatusViewModel.StatusText = "Performing one algorithm step...";
 
-      bool finished = await KMeans.FindClustersStep();
+      CancellationTokenSource = new CancellationTokenSource();
+
+      bool finished = await KMeans.FindClustersStep(CancellationTokenSource.Token);
 
       EnsureDrawingCanvasChildren();
       StatusViewModel.StatusText = $"Done one step, algorithm has {(finished ? string.Empty : "not yet ")}finished";

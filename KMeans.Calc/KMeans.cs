@@ -7,8 +7,49 @@ using KMeans.Calc.Models;
 
 namespace KMeans.Calc
 {
+  public delegate void UpdatedData(object sender, UpdatedDataEventArgs e);
+
+  public class UpdatedDataEventArgs
+  {
+    public UpdatedDataEventArgs(List<Cluster> clusters, List<Point> points)
+    {
+      Clusters = clusters;
+      Points = points;
+    }
+
+    public List<Point> Points { get; }
+    public List<Cluster> Clusters { get; }
+  }
+
+  public delegate void DoneStep(object sender, DoneStepEventArgs e);
+
+  public class DoneStepEventArgs
+  {
+    public DoneStepEventArgs(List<Point> points, List<Cluster> clusters, int stepNo, int stepsNum, bool finished)
+    {
+      Points = points;
+      Clusters = clusters;
+      StepNo = stepNo;
+      StepsNum = stepsNum;
+      Finished = finished;
+    }
+
+    public List<Point> Points { get; }
+    public List<Cluster> Clusters { get; }
+
+    public int StepNo { get; }
+
+    public int StepsNum { get; }
+
+    public bool Finished { get; }
+  }
+
+
   public class KMeans
   {
+    public event UpdatedData UpdatedData;
+    public event DoneStep DoneStep;
+
     public KMeans(List<Point> points, List<Cluster> clusters, int numDimensions)
     {
       Points = points;
@@ -69,6 +110,7 @@ namespace KMeans.Calc
 
       point.PreviousCluster = point.Cluster;
       point.Cluster = newCluster;
+
     }
 
     public static void MoveCluster(Cluster cluster, List<Point> points)
@@ -98,11 +140,22 @@ namespace KMeans.Calc
     {
       var counter = 0;
 
-      while (counter++ < maxIterations && !await FindClustersStep(cancellationToken))
-      {
-      }
+      var finished = false;
 
-      return await FindClustersFinished();
+      try
+      {
+
+        while (counter++ < maxIterations && !(finished = await FindClustersStep(cancellationToken)))
+        {
+          DoneStep?.Invoke(this, new DoneStepEventArgs(Points, Clusters, counter, maxIterations, finished));
+        }
+      }
+      catch (OperationCanceledException)
+      {
+        //eat the fuken exception you cancellation token
+        return false;
+      }
+      return finished;
     }
 
     public async Task<bool> FindClustersStep()
@@ -115,27 +168,35 @@ namespace KMeans.Calc
       var parallelOptions = new ParallelOptions
       {
         CancellationToken = cancellationToken,
-//#if DEBUG
-//        MaxDegreeOfParallelism = 1,
-//#endif
+        //#if DEBUG
+        //        MaxDegreeOfParallelism = 1,
+        //#endif
       };
+      try
+      {
+        await
+          Task.Factory.StartNew(() => Parallel.ForEach(Points, parallelOptions, point => { FindNewCluster(point, Clusters); }),
+            cancellationToken);
 
-      await
-        Task.Factory.StartNew(() => Parallel.ForEach(Points, parallelOptions, point => { FindNewCluster(point, Clusters); }),
-          cancellationToken);
 
+        await
+          Task.Factory.StartNew(
+            () => Parallel.ForEach(Clusters, parallelOptions, cluster => { MoveCluster(cluster, Points, NumDimenstions); }),
+            cancellationToken);
 
-      await
-        Task.Factory.StartNew(
-          () => Parallel.ForEach(Clusters, parallelOptions, cluster => { MoveCluster(cluster, Points, NumDimenstions); }),
-          cancellationToken);
+        UpdatedData?.Invoke(this, new UpdatedDataEventArgs(Clusters, Points));
 
+      }
+      catch (OperationCanceledException)
+      {
+        return false;
+      }
       return await FindClustersFinished();
     }
 
     public async Task<bool> FindClustersFinished()
     {
-      return await Task.Factory.StartNew(()=> Points.AsParallel().All(point => point.Cluster != null && ReferenceEquals(point.Cluster, point.PreviousCluster)));
+      return await Task.Factory.StartNew(() => Points.AsParallel().All(point => point.Cluster != null && ReferenceEquals(point.Cluster, point.PreviousCluster)));
     }
   }
 }
