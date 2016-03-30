@@ -29,7 +29,7 @@ namespace KMeans.Tests
         new Point(1, 1)
       });
 
-      Assert.IsFalse(_kMeans.FindClustersFinished());
+      Assert.IsFalse(_kMeans.FindClustersFinished().Result);
     }
 
     [TestMethod]

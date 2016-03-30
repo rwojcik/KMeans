@@ -17,12 +17,13 @@
       <MenuItem Header="Edit">
         <MenuItem Header="Undo" />
         <MenuItem Header="Redo" />
-        <Separator />
+        <MenuItem Header="Clear" Click="ClearMenuItemClick"></MenuItem>
+          <Separator />
         <MenuItem Name="AddRandomPointsMenu" Header="Add random points..." />
         <MenuItem Name="AddRandomClustersMenu" Header="Add random clusters..." />
       </MenuItem>
       <MenuItem Header="KMeans">
-        <MenuItem Header="Do step" />
+        <MenuItem Header="Do step" Click="AlgorithDoStepMenuClick"/>
         <MenuItem Name="RunAlgorithmMenu" Header="Run algorithm..." />
       </MenuItem>
     </Menu>
