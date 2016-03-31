@@ -63,14 +63,26 @@ namespace KMeans.Calc
       var r = new Random();
 
       Points =
-        Enumerable.Range(0, numPoints)
-          .Select(i => new Point(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
-          .ToList();
+        GenerateRandomPoints(numPoints, dimBounds, r);
 
       Clusters =
-        Enumerable.Range(0, numClusters)
-          .Select(i => new Cluster(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
-          .ToList();
+        GenerateRandomClusters(numClusters, dimBounds, r);
+    }
+
+    public static List<Cluster> GenerateRandomClusters(int numClusters, double[] dimBounds, Random r = null)
+    {
+      if(r == null) r = new Random();
+      return Enumerable.Range(0, numClusters)
+        .Select(i => new Cluster(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
+        .ToList();
+    }
+
+    public static List<Point> GenerateRandomPoints(int numPoints, double[] dimBounds, Random r = null)
+    {
+      if(r == null) r = new Random();
+      return Enumerable.Range(0, numPoints)
+        .Select(i => new Point(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
+        .ToList();
     }
 
     public KMeans(int numDimensions = 2)
@@ -168,9 +180,6 @@ namespace KMeans.Calc
       var parallelOptions = new ParallelOptions
       {
         CancellationToken = cancellationToken,
-        //#if DEBUG
-        //        MaxDegreeOfParallelism = 1,
-        //#endif
       };
       try
       {
@@ -197,6 +206,27 @@ namespace KMeans.Calc
     public async Task<bool> FindClustersFinished()
     {
       return await Task.Factory.StartNew(() => Points.AsParallel().All(point => point.Cluster != null && ReferenceEquals(point.Cluster, point.PreviousCluster)));
+    }
+
+    public int GetProperlyClassifiedNum()
+    {
+      if (Points.Any(p => string.IsNullOrEmpty(p.Class)))
+        return -1;
+
+      var ret = 0;
+      
+      foreach (var cluster in Clusters)
+      {
+        var className =
+          Points.Where(point => ReferenceEquals(point.Cluster, cluster))
+            .GroupBy(point => new {ClassName = point.Class})
+            .Select(g => new {g.Key.ClassName, Count = g.Count()})
+            .OrderBy(g => g.Count)
+            .FirstOrDefault()?.ClassName;
+
+        ret += Points.Count(point => ReferenceEquals(point.Cluster, cluster) && point.Class == className);
+      }
+      return ret;
     }
   }
 }

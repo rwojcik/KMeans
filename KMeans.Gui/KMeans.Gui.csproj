@@ -88,6 +88,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Arff\Data.cs" />
+    <Compile Include="Models\Arff\Relation.cs" />
     <Compile Include="Models\Point2DModel.cs" />
     <Compile Include="ViewModels\CursorPositionViewModel.cs" />
     <Compile Include="ViewModels\SaveViewModel.cs" />

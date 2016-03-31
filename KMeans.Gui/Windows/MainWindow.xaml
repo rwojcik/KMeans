@@ -7,14 +7,14 @@
   mc:Ignorable="d"
   Title="MainWindow" MinHeight="200" MinWidth="300">
   <DockPanel LastChildFill="True">
-    <Menu DockPanel.Dock="Top" IsMainMenu="True">
+    <Menu Name="MainMenu" DockPanel.Dock="Top" IsMainMenu="True">
       <MenuItem Header="File">
-        <MenuItem Header="Load" />
-        <MenuItem Header="Save" />
+        <MenuItem IsEnabled="{Binding AlgorithmNotRunning}" Header="Load" Click="MenuItemLoadClick" />
+        <!--<MenuItem IsEnabled="{Binding AlgorithmNotRunning}" Header="Save" />-->
         <Separator />
         <MenuItem Header="Exit" Click="ExitMenuItemClick" />
       </MenuItem>
-      <MenuItem Header="Edit">
+      <MenuItem IsEnabled="{Binding AlgorithmNotRunning}" Header="Edit">
         <MenuItem Header="Undo" />
         <MenuItem Header="Redo" />
         <MenuItem Header="Clear" Click="ClearMenuItemClick"></MenuItem>
@@ -22,7 +22,7 @@
         <MenuItem Name="AddRandomPointsMenu" Header="Add random points..." />
         <MenuItem Name="AddRandomClustersMenu" Header="Add random clusters..." />
       </MenuItem>
-      <MenuItem Header="KMeans">
+      <MenuItem IsEnabled="{Binding AlgorithmNotRunning}" Header="KMeans">
         <MenuItem Header="Do step" Click="AlgorithmDoStepMenuClick"/>
         <MenuItem Name="RunAlgorithmMenu" Header="Run algorithm..." />
       </MenuItem>

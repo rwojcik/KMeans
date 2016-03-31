@@ -6,5 +6,9 @@ namespace KMeans.Gui.ViewModels
   public class StatusViewModel
   {
     public string StatusText { get; set; }
+
+    public bool AlgorithmRunning { get; set; }
+
+    public bool AlgorithmNotRunning => !AlgorithmRunning;
   }
 }

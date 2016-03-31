@@ -27,6 +27,8 @@ namespace KMeans.Calc.Models
 
     public Cluster PreviousCluster { get; set; }
 
+    public string Class { get; set; }
+
     public int CompareTo(Point other)
     {
       return (int) Values.Zip(other.Values, (thisValue, otherValue) => thisValue - otherValue).Sum();
@@ -53,7 +55,7 @@ namespace KMeans.Calc.Models
 
     public override string ToString()
     {
-      return $"({string.Join(", ", Values)}), {nameof(Cluster)}: {Cluster}";
+      return $"({string.Join(", ", Values)}), {nameof(Cluster)}: {Cluster?.ToString() ?? "unknown"}";
     }
   }
 }
