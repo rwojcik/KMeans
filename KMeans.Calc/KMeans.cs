@@ -43,8 +43,7 @@ namespace KMeans.Calc
 
     public bool Finished { get; }
   }
-
-
+  
   public class KMeans
   {
     public event UpdatedData UpdatedData;
@@ -71,7 +70,7 @@ namespace KMeans.Calc
 
     public static List<Cluster> GenerateRandomClusters(int numClusters, double[] dimBounds, Random r = null)
     {
-      if(r == null) r = new Random();
+      if (r == null) r = new Random();
       return Enumerable.Range(0, numClusters)
         .Select(i => new Cluster(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
         .ToList();
@@ -79,7 +78,7 @@ namespace KMeans.Calc
 
     public static List<Point> GenerateRandomPoints(int numPoints, double[] dimBounds, Random r = null)
     {
-      if(r == null) r = new Random();
+      if (r == null) r = new Random();
       return Enumerable.Range(0, numPoints)
         .Select(i => new Point(dimBounds.Select(bound => r.NextDouble() * bound).ToArray()))
         .ToList();
@@ -97,10 +96,7 @@ namespace KMeans.Calc
 
     public int NumDimenstions { get; }
 
-    public static double CalcDistance(Point point, Cluster cluster)
-    {
-      return Math.Sqrt(point.Values.Zip(cluster.Values, (p, c) => Math.Pow(p - c, 2)).Sum());
-    }
+    public static double CalcDistance(Point point, Cluster cluster) => Math.Sqrt(point.Values.Zip(cluster.Values, (p, c) => Math.Pow(p - c, 2)).Sum());
 
     public static void FindNewCluster(Point point, List<Cluster> clusters)
     {
@@ -156,8 +152,7 @@ namespace KMeans.Calc
 
       try
       {
-
-        while (counter++ < maxIterations && !(finished = await FindClustersStep(cancellationToken)))
+        while (counter++ < maxIterations && !cancellationToken.IsCancellationRequested && !(finished = await FindClustersStep(cancellationToken)))
         {
           DoneStep?.Invoke(this, new DoneStepEventArgs(Points, Clusters, counter, maxIterations, finished));
         }
@@ -174,19 +169,20 @@ namespace KMeans.Calc
     {
       return await FindClustersStep(CancellationToken.None);
     }
-
+    
     public async Task<bool> FindClustersStep(CancellationToken cancellationToken)
     {
       var parallelOptions = new ParallelOptions
       {
+        MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount / 2),
         CancellationToken = cancellationToken,
       };
+
       try
       {
         await
           Task.Factory.StartNew(() => Parallel.ForEach(Points, parallelOptions, point => { FindNewCluster(point, Clusters); }),
             cancellationToken);
-
 
         await
           Task.Factory.StartNew(
@@ -205,7 +201,7 @@ namespace KMeans.Calc
 
     public async Task<bool> FindClustersFinished()
     {
-      return await Task.Factory.StartNew(() => Points.AsParallel().All(point => point.Cluster != null && ReferenceEquals(point.Cluster, point.PreviousCluster)));
+      return await Task.Factory.StartNew(() => Points.All(point => point.Cluster != null && ReferenceEquals(point.Cluster, point.PreviousCluster)));
     }
 
     public int GetProperlyClassifiedNum()
@@ -214,13 +210,13 @@ namespace KMeans.Calc
         return -1;
 
       var ret = 0;
-      
+
       foreach (var cluster in Clusters)
       {
         var className =
           Points.Where(point => ReferenceEquals(point.Cluster, cluster))
-            .GroupBy(point => new {ClassName = point.Class})
-            .Select(g => new {g.Key.ClassName, Count = g.Count()})
+            .GroupBy(point => new { ClassName = point.Class })
+            .Select(g => new { g.Key.ClassName, Count = g.Count() })
             .OrderBy(g => g.Count)
             .FirstOrDefault()?.ClassName;
 

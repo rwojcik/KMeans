@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using PostSharp.Patterns.Contracts;
 
 namespace KMeans.Calc.Models
 {
@@ -10,15 +9,17 @@ namespace KMeans.Calc.Models
     public Point(params double[] values)
     {
       Values = values;
-      Cluster = null;
-      PreviousCluster = null;
+      Cluster = default(Cluster);
+      PreviousCluster = default(Cluster);
+      Class = string.Empty;
     }
 
-    public Point([StrictlyPositive] int dimensions)
+    public Point(string className, params double[] values)
     {
-      Values = new double[dimensions];
-      Cluster = null;
-      PreviousCluster = null;
+      Values = values;
+      Cluster = default(Cluster);
+      PreviousCluster = default(Cluster);
+      Class = className;
     }
 
     public double[] Values { get; }

@@ -69,18 +69,11 @@ namespace KMeans.Tests
       };
       _kMeans.Points.AddRange(points);
 
-      //bool finished = _kMeans.FindClustersStep().Result;
-
-      //Assert.IsFalse(finished);
-
-      //finished = _kMeans.FindClustersStep().Result;
-
-      //Assert.IsTrue(finished);
-
       var finished = _kMeans.FindClusters().Result;
 
       Assert.AreEqual(new Cluster(0, 0), clusters[0]);
       Assert.AreEqual(new Cluster(10, 0), clusters[1]);
+      Assert.IsTrue(finished);
     }
   }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KMeans.Gui.Models.Arff
+﻿namespace KMeans.Gui.Models.Arff
 {
   public class Relation
   {

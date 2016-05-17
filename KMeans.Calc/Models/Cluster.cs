@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
-using PostSharp.Patterns.Contracts;
 
 namespace KMeans.Calc.Models
 {
-  //[NotifyPropertyChanged]
   public class Cluster : IComparable<Cluster>, IEquatable<Cluster>
   {
     public Cluster(params double[] values)
@@ -12,7 +10,7 @@ namespace KMeans.Calc.Models
       Values = values;
     }
 
-    public Cluster([StrictlyPositive] int dimensions)
+    public Cluster(int dimensions)
     {
       Values = new double[dimensions];
     }

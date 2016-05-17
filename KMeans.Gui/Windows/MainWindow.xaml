@@ -32,7 +32,7 @@
         <TextBlock x:Name="CursorPosition" Text="{Binding PositionText}" />
       </StatusBarItem>
       <Separator />
-      <StatusBarItem DataContext="">
+      <StatusBarItem>
         <TextBlock x:Name="StatusInfo" Text="{Binding StatusText}" />
       </StatusBarItem>
     </StatusBar>

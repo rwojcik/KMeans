@@ -12,8 +12,6 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using KMeans.Calc;
-using KMeans.Calc.Models;
-using KMeans.Gui.Models;
 using KMeans.Gui.Models.Arff;
 using KMeans.Gui.ViewModels;
 using Microsoft.Win32;
@@ -253,7 +251,7 @@ namespace KMeans.Gui.Windows
     {
       if (!(sender is IInputElement)) return;
 
-      CursorPositionViewModel.Position.Point = Mouse.GetPosition((IInputElement)sender);
+      CursorPositionViewModel.Position = Mouse.GetPosition((IInputElement) sender);
     }
 
     private void DrawingCanvasOnMouseEnter(object sender, MouseEventArgs e)
