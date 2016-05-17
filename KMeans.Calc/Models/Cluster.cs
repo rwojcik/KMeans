@@ -10,11 +10,6 @@ namespace KMeans.Calc.Models
       Values = values;
     }
 
-    public Cluster(int dimensions)
-    {
-      Values = new double[dimensions];
-    }
-
     public double[] Values { get; }
 
     public int CompareTo(Cluster other)

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using KMeans.Calc.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace KMeans.Tests
 {
   [TestClass]
-  public class KMeansStaticTests
+  public class KMeansOfflineTests
   {
     [TestMethod]
     public void CalcDistance_1D()
@@ -62,15 +63,15 @@ namespace KMeans.Tests
         new Point(10d)
       };
 
-      foreach (var point in points)
-      {
-        Calc.KMeans.FindNewCluster(point, clusters);
-      }
+      var calc = new Calc.KMeans(points, clusters, 1);
 
-      Assert.AreSame(clusters[0], points[0].Cluster);
-      Assert.AreSame(clusters[0], points[1].Cluster);
-      Assert.AreSame(clusters[0], points[2].Cluster);
-      Assert.AreSame(clusters[1], points[3].Cluster);
+      var finished = calc.FindClustersStep().Result;
+
+      Assert.IsTrue(finished);
+      Assert.Equals(clusters[0], points[0].Cluster);
+      Assert.Equals(clusters[0], points[1].Cluster);
+      Assert.Equals(clusters[0], points[2].Cluster);
+      Assert.Equals(clusters[1], points[3].Cluster);
     }
 
     [TestMethod]
@@ -90,48 +91,57 @@ namespace KMeans.Tests
         new Point(100d, 100d)
       };
 
-      foreach (var point in points)
-      {
-        Calc.KMeans.FindNewCluster(point, clusters);
-      }
+      var calc = new Calc.KMeans(points, clusters, 1);
 
-      Assert.AreSame(clusters[0], points[0].Cluster);
-      Assert.AreSame(clusters[0], points[1].Cluster);
-      Assert.AreSame(clusters[0], points[2].Cluster);
-      Assert.AreSame(clusters[1], points[3].Cluster);
+      var finished = calc.FindNewCluster().Result;
+
+      Assert.IsTrue(finished);
+      Assert.AreSame(calc.Clusters[0], calc.Points[0].Cluster);
+      Assert.AreSame(calc.Clusters[0], calc.Points[1].Cluster);
+      Assert.AreSame(calc.Clusters[0], calc.Points[2].Cluster);
+      Assert.AreSame(calc.Clusters[1], calc.Points[3].Cluster);
     }
 
     [TestMethod]
     public void MoveCluster_1D()
     {
-      var cluser = new Cluster(0d);
 
+      var clusters = new List<Cluster>
+      {
+        new Cluster(0d)
+      };
       var points = new List<Point>
       {
-        new Point(5d) {Cluster = cluser},
-        new Point(6d) {Cluster = cluser}
+        new Point(5d) {Cluster = clusters[0]},
+        new Point(6d) {Cluster = clusters[0]}
       };
 
-      Calc.KMeans.MoveCluster(cluser, points);
+      var calc = new Calc.KMeans(points, clusters, 1);
 
-      Assert.AreEqual(5.5d, cluser.Values[0]);
+      var finished = calc.FindClustersStep().Result;
+
+      Assert.IsTrue(finished);
+      Assert.AreEqual(5.5d, clusters[0].Values[0]);
     }
 
     [TestMethod]
     public void MoveCluster_2D()
     {
-      var cluster = new Cluster(0d, 0d);
+      var clusters = new List<Cluster>
+      {
+        new Cluster(0d, 0d)
+      };
 
       var points = new List<Point>
       {
-        new Point(5d, 5d) {Cluster = cluster},
-        new Point(6d, 6d) {Cluster = cluster}
+        new Point(5d, 5d) {Cluster = clusters[0]},
+        new Point(6d, 6d) {Cluster = clusters[0]}
       };
 
-      Calc.KMeans.MoveCluster(cluster, points);
+      var calc = new Calc.KMeans(points, clusters, 1);
 
-      Assert.AreEqual(5.5d, cluster.Values[0]);
-      Assert.AreEqual(5.5d, cluster.Values[1]);
+      Assert.AreEqual(5.5d, calc.Clusters.Values[0]);
+      Assert.AreEqual(5.5d, calc.Clusters.Values[1]);
     }
   }
 }

@@ -98,13 +98,13 @@ namespace KMeans.Calc
 
     public static double CalcDistance(Point point, Cluster cluster) => Math.Sqrt(point.Values.Zip(cluster.Values, (p, c) => Math.Pow(p - c, 2)).Sum());
 
-    public static void FindNewCluster(Point point, List<Cluster> clusters)
+    public Point FindNewCluster(Point point)
     {
       //var distances = clusters.ToDictionary(cluster => CalcDistance(point, cluster));
 
-      var distances = new Dictionary<double, Cluster>(clusters.Count);
+      var distances = new Dictionary<double, Cluster>(Clusters.Count);
 
-      foreach (var cluster in clusters)
+      foreach (var cluster in Clusters)
       {
         var distance = CalcDistance(point, cluster);
 
@@ -119,24 +119,27 @@ namespace KMeans.Calc
       point.PreviousCluster = point.Cluster;
       point.Cluster = newCluster;
 
+      return point;
     }
 
-    public static void MoveCluster(Cluster cluster, List<Point> points)
+    public Cluster MoveCluster(Cluster cluster)
     {
-      MoveCluster(cluster, points, cluster.Values.Length);
+      return MoveCluster(cluster, cluster.Values.Length);
     }
 
-    public static void MoveCluster(Cluster cluster, List<Point> points, int numDimensions)
+    public Cluster MoveCluster(Cluster cluster, int numDimensions)
     {
-      var clusterPoints = points.Where(point => ReferenceEquals(point.Cluster, cluster)).ToList();
+      var clusterPoints = Points.Where(point => ReferenceEquals(point.Cluster, cluster)).ToList();
 
       if (!clusterPoints.Any())
-        return;
+        return cluster;
 
       for (var dimension = 0; dimension < numDimensions; dimension++)
       {
         cluster.Values[dimension] = clusterPoints.Average(point => point.Values[dimension]);
       }
+
+      return cluster;
     }
 
     public async Task<bool> FindClusters(int maxIterations = 100)
@@ -181,12 +184,16 @@ namespace KMeans.Calc
       try
       {
         await
-          Task.Factory.StartNew(() => Parallel.ForEach(Points, parallelOptions, point => { FindNewCluster(point, Clusters); }),
+          Task.Factory.StartNew(() =>
+          {
+
+            Parallel.ForEach(Points, parallelOptions, point => { FindNewCluster(point); });
+          },
             cancellationToken);
 
         await
           Task.Factory.StartNew(
-            () => Parallel.ForEach(Clusters, parallelOptions, cluster => { MoveCluster(cluster, Points, NumDimenstions); }),
+            () => Parallel.ForEach(Clusters, parallelOptions, cluster => { MoveCluster(cluster, NumDimenstions); }),
             cancellationToken);
 
         UpdatedData?.Invoke(this, new UpdatedDataEventArgs(Clusters, Points));
@@ -201,7 +208,7 @@ namespace KMeans.Calc
 
     public async Task<bool> FindClustersFinished()
     {
-      return await Task.Factory.StartNew(() => Points.All(point => point.Cluster != null && ReferenceEquals(point.Cluster, point.PreviousCluster)));
+      return await Task.Factory.StartNew(() => Points.All(point => !point.Cluster.Equals(default(Cluster)) && point.Cluster.Equals(point.PreviousCluster)));
     }
 
     public int GetProperlyClassifiedNum()

@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using KMeans.Calc;
+using KMeans.Calc.Models;
 using KMeans.Gui.Models.Arff;
 using KMeans.Gui.ViewModels;
 using Microsoft.Win32;
@@ -299,7 +300,7 @@ namespace KMeans.Gui.Windows
 
         DrawingCanvas.Children.Add(circle);
 
-        if (point.Cluster != null)
+        if (!point.Cluster.Equals(default(Cluster)))
         {
           var line = new Line
           {
